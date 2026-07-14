@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificador de Tarjetas de Crédito y Ahorro de Nómina</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Personalización de barra de desplazamiento estilo hoja de cálculo */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col overflow-hidden">
+
+    <!-- Header superior de la App -->
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="p-2.5 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg shadow-emerald-500/20 text-white">
+                <i class="fa-solid fa-credit-card text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+                    NominaCard Planner
+                </h1>
+                <p class="text-xs text-slate-400">Automatiza tus ahorros quincenales (5 y 20) para tus compras</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+            <!-- Selector de nóminas activas del mes -->
+            <span class="text-xs font-semibold px-2.5 py-1 bg-slate-800 rounded-full text-slate-300 border border-slate-700 flex items-center gap-1.5">
+                <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Nóminas: 5 y 20 de cada mes
+            </span>
+            <button onclick="exportToCSV()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 text-slate-200 text-sm font-medium rounded-lg transition-all duration-150 flex items-center gap-2">
+                <i class="fa-solid fa-file-excel text-emerald-500"></i>
+                Exportar CSV
+            </button>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden">
+        <!-- Sidebar lateral de navegación -->
+        <aside class="w-64 bg-slate-900/50 border-r border-slate-800 flex flex-col p-4 shrink-0 justify-between">
+            <div class="space-y-6">
+                <!-- Secciones -->
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-3 block mb-2">Menú Principal</span>
+                    <nav class="space-y-1">
+                        <button onclick="switchView('dashboard')" id="btn-nav-dashboard" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 transition-all text-emerald-400 bg-slate-800/80 border-l-4 border-emerald-500">
+                            <i class="fa-solid fa-chart-pie w-5"></i>
+                            Dashboard
+                        </button>
+                        <button onclick="switchView('cards')" id="btn-nav-cards" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                            <i class="fa-solid fa-wallet w-5"></i>
+                            Mis Tarjetas
+                            <span id="badge-card-count" class="ml-auto text-xs px-2 py-0.5 bg-slate-800 text-slate-300 rounded-full">0</span>
+                        </button>
+                        <button onclick="switchView('purchases')" id="btn-nav-purchases" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                            <i class="fa-solid fa-basket-shopping w-5"></i>
+                            Compras Realizadas
+                            <span id="badge-purchase-count" class="ml-auto text-xs px-2 py-0.5 bg-slate-800 text-slate-300 rounded-full">0</span>
+                        </button>
+                        <button onclick="switchView('sheets')" id="btn-nav-sheets" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                            <i class="fa-solid fa-table w-5"></i>
+                            Hoja de Ahorros (Sheets)
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Atajos rápidos -->
+                <div class="pt-4 border-t border-slate-800/60">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-3 block mb-3">Acciones Rápidas</span>
+                    <div class="space-y-2 px-2">
+                        <button onclick="openCardModal()" class="w-full py-2 px-3 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 hover:border-emerald-500/40 text-emerald-400 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Nueva Tarjeta
+                        </button>
+                        <button onclick="openPurchaseModal()" class="w-full py-2 px-3 bg-teal-600/10 hover:bg-teal-600/20 border border-teal-500/20 hover:border-teal-500/40 text-teal-400 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-cart-plus"></i> Registrar Compra
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Estado / Resumen Quincenal Rápido -->
+            <div class="p-3.5 bg-slate-900 border border-slate-800 rounded-xl space-y-3">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="text-slate-400">Total a Ahorrar</span>
+                    <span class="font-bold text-emerald-400" id="sidebar-total-saving">$0</span>
+                </div>
+                <div class="space-y-2">
+                    <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80">
+                        <p class="text-[10px] text-slate-500 font-semibold uppercase">Próxima Nómina (Día 5 o 20)</p>
+                        <p class="text-xs font-bold text-slate-300 mt-1" id="sidebar-next-payroll-date">Calculando...</p>
+                        <p class="text-sm font-extrabold text-emerald-400 mt-0.5" id="sidebar-next-payroll-amount">$0</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Contenedor de Vistas Dinámicas -->
+        <main class="flex-1 flex flex-col bg-slate-950 overflow-y-auto relative">
+
+            <!-- VISTA: DASHBOARD -->
+            <section id="view-dashboard" class="p-6 space-y-6">
+                <!-- Hero con Metas -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between shadow-xl relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-emerald-500/5 text-8xl font-bold pointer-events-none">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                        </div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Ahorro Requerido Total</span>
+                            <span class="p-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg text-sm"><i class="fa-solid fa-vault"></i></span>
+                        </div>
+                        <div>
+                            <h3 class="text-3xl font-black text-slate-100" id="dash-total-saving">$0</h3>
+                            <p class="text-xs text-slate-400 mt-1">Suma acumulada de todas las cuotas activas</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between shadow-xl relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-teal-500/5 text-8xl font-bold pointer-events-none">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tarjetas Registradas</span>
+                            <span class="p-1.5 bg-teal-500/10 text-teal-400 rounded-lg text-sm"><i class="fa-solid fa-credit-card"></i></span>
+                        </div>
+                        <div>
+                            <h3 class="text-3xl font-black text-slate-100" id="dash-total-cards">0</h3>
+                            <p class="text-xs text-slate-400 mt-1">Bancos y franquicias vinculadas</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between shadow-xl relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-blue-500/5 text-8xl font-bold pointer-events-none">
+                            <i class="fa-solid fa-calendar-days"></i>
+                        </div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Esquema de Nómina</span>
+                            <span class="p-1.5 bg-blue-500/10 text-blue-400 rounded-lg text-sm"><i class="fa-solid fa-sack-dollar"></i></span>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-100">Quincenal (5 / 20)</h3>
+                            <p class="text-xs text-slate-400 mt-1" id="dash-active-payroll-info">Próxima fecha: Evaluando...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Planificador Quincenal de Ahorro: Gráfico/Tabla de los próximos desembolsos -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Col Izquierda: Próximas Nóminas Detalladas -->
+                    <div class="lg:col-span-2 bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 flex flex-col space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-bold text-slate-100 flex items-center gap-2">
+                                    <i class="fa-solid fa-calendar-check text-emerald-500"></i>
+                                    Cronograma de Ahorros de Nómina
+                                </h4>
+                                <p class="text-xs text-slate-400">Distribución de lo que debes guardar cada quincena</p>
+                            </div>
+                        </div>
+
+                        <!-- Lista de Nóminas Futuras -->
+                        <div class="overflow-y-auto max-h-[300px] pr-2 space-y-2.5" id="payroll-distribution-list">
+                            <!-- Inyectado dinámicamente -->
+                        </div>
+                    </div>
+
+                    <!-- Col Derecha: Mini Asistente de IA (Gemini) para Consejos Financieros -->
+                    <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 flex flex-col h-[400px]">
+                        <div class="flex items-center gap-2.5 pb-3 border-b border-slate-800">
+                            <div class="p-1.5 bg-indigo-500/10 text-indigo-400 rounded-lg">
+                                <i class="fa-solid fa-brain"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-xs text-slate-200">Asistente Financiero Gemini</h4>
+                                <p class="text-[10px] text-indigo-400 font-medium">Análisis de deudas & optimización</p>
+                            </div>
+                        </div>
+
+                        <!-- Chat messages container -->
+                        <div id="ai-chat-messages" class="flex-1 overflow-y-auto py-4 space-y-3 text-xs pr-1">
+                            <div class="bg-slate-800/40 rounded-lg p-3 text-slate-300">
+                                <span class="font-bold text-indigo-400 block mb-1"><i class="fa-solid fa-robot"></i> Asistente</span>
+                                ¡Hola! Analizaré tus tarjetas registradas, tus compras a cuotas y tus próximas nóminas para darte la mejor estrategia de ahorro. ¿Tienes alguna pregunta específica?
+                            </div>
+                        </div>
+
+                        <!-- Chat input -->
+                        <div class="pt-3 border-t border-slate-800 flex gap-2">
+                            <input id="ai-chat-input" type="text" placeholder="¿Cómo optimizar mi próxima nómina?" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-indigo-500 text-slate-200">
+                            <button onclick="askGemini()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition text-xs font-semibold">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tutorial de Estrategia de Nómina -->
+                <div class="bg-slate-900/30 border border-slate-800/60 rounded-2xl p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="flex items-start gap-3">
+                        <div class="text-emerald-500 text-lg mt-1"><i class="fa-solid fa-scissors"></i></div>
+                        <div>
+                            <h5 class="text-sm font-semibold text-slate-200">1. Fecha de Corte</h5>
+                            <p class="text-xs text-slate-400 mt-1">Divide tus compras. Si compras antes del corte, pagas al mes siguiente; si es después, ganas una nómina adicional para ahorrar.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="text-teal-500 text-lg mt-1"><i class="fa-solid fa-piggy-bank"></i></div>
+                        <div>
+                            <h5 class="text-sm font-semibold text-slate-200">2. Reparto de Nómina</h5>
+                            <p class="text-xs text-slate-400 mt-1">Dividimos el valor de cada cuota mensualmente entre todas las quincenas disponibles entre la compra y la fecha límite de pago.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="text-blue-500 text-lg mt-1"><i class="fa-solid fa-building-columns"></i></div>
+                        <div>
+                            <h5 class="text-sm font-semibold text-slate-200">3. Cero Estrés</h5>
+                            <p class="text-xs text-slate-400 mt-1">Al llegar el día de pago de la tarjeta, ya habrás retirado el porcentaje exacto de tus quincenas de los días 5 y 20.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VISTA: MIS TARJETAS -->
+            <section id="view-cards" class="p-6 space-y-6 hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                            <i class="fa-solid fa-wallet text-emerald-500"></i>
+                            Mis Tarjetas de Crédito
+                        </h2>
+                        <p class="text-xs text-slate-400">Administra tus tarjetas, días de corte y fechas límites de pago</p>
+                    </div>
+                    <button onclick="openCardModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 shadow-lg shadow-emerald-500/10">
+                        <i class="fa-solid fa-plus"></i>
+                        Agregar Tarjeta
+                    </button>
+                </div>
+
+                <!-- Lista de Tarjetas (Tarjetero visual) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="cards-grid">
+                    <!-- Se llena dinámicamente -->
+                </div>
+            </section>
+
+            <!-- VISTA: COMPRAS REALIZADAS -->
+            <section id="view-purchases" class="p-6 space-y-6 hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                            <i class="fa-solid fa-basket-shopping text-teal-500"></i>
+                            Historial de Compras
+                        </h2>
+                        <p class="text-xs text-slate-400">Controla cada compra y la cantidad de cuotas / mensualidades elegidas</p>
+                    </div>
+                    <button onclick="openPurchaseModal()" class="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 shadow-lg shadow-teal-500/10">
+                        <i class="fa-solid fa-cart-plus"></i>
+                        Registrar Compra
+                    </button>
+                </div>
+
+                <!-- Tabla/Lista de Compras -->
+                <div class="bg-slate-900/40 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-800 bg-slate-900/80 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                                    <th class="p-4">Compra / Producto</th>
+                                    <th class="p-4">Tarjeta Utilizada</th>
+                                    <th class="p-4 text-center">Cuotas</th>
+                                    <th class="p-4">Valor Total</th>
+                                    <th class="p-4">Valor Cuota</th>
+                                    <th class="p-4">Fecha Compra</th>
+                                    <th class="p-4 text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="purchases-table-body" class="text-sm text-slate-300 divide-y divide-slate-800/50">
+                                <!-- Se llena dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="purchases-empty-state" class="p-8 text-center hidden">
+                        <i class="fa-solid fa-receipt text-slate-600 text-4xl mb-3"></i>
+                        <p class="text-slate-400 text-sm">No has registrado compras todavía. ¡Comienza agregando una!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VISTA: GOOGLE SHEETS INTERACTIVO -->
+            <section id="view-sheets" class="p-6 space-y-6 hidden flex flex-col h-full overflow-hidden">
+                <div class="flex items-center justify-between shrink-0">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 rounded text-[10px] font-bold uppercase tracking-wider">Autoguardado</span>
+                            <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-file-invoice-dollar text-emerald-500"></i>
+                                Control de Ahorros de Nómina (Google Sheet)
+                            </h2>
+                        </div>
+                        <p class="text-xs text-slate-400">Simulación interactiva de base de datos de compras diferidas y cálculo de ahorro por quincena</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="exportToCSV()" class="px-3.5 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/40 text-xs font-semibold rounded-lg transition flex items-center gap-2">
+                            <i class="fa-solid fa-file-csv"></i> Descargar Excel/CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Estructura de Hoja de Cálculo Interactiva -->
+                <div class="flex-1 bg-[#0b1329] border border-slate-800 rounded-2xl flex flex-col overflow-hidden shadow-2xl">
+                    <!-- Google Sheets top bar -->
+                    <div class="bg-slate-900 border-b border-slate-800 px-4 py-2.5 flex items-center gap-4 text-xs shrink-0 select-none">
+                        <div class="flex items-center gap-2 text-slate-300">
+                            <span class="bg-emerald-700 text-white font-extrabold px-1.5 py-0.5 rounded text-[10px]">田</span>
+                            <span class="font-bold">Libro_Ahorro_Nomina.xlsx</span>
+                        </div>
+                        <div class="h-4 w-px bg-slate-800"></div>
+                        <div class="flex gap-3 text-slate-400">
+                            <span class="hover:text-slate-200 cursor-pointer">Archivo</span>
+                            <span class="hover:text-slate-200 cursor-pointer">Editar</span>
+                            <span class="hover:text-slate-200 cursor-pointer">Ver</span>
+                            <span class="hover:text-slate-200 cursor-pointer">Fórmula</span>
+                        </div>
+                        <div class="ml-auto flex items-center gap-2 bg-slate-950 px-2.5 py-1 rounded-md border border-slate-800 text-[11px]">
+                            <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                            <span class="text-slate-300 font-medium text-[10px]">Hojas de Google Sincronizadas (Local)</span>
+                        </div>
+                    </div>
+
+                    <!-- Spreadsheet Data Grid -->
+                    <div class="flex-1 overflow-auto bg-slate-950">
+                        <table class="w-full text-left text-xs font-mono border-collapse" style="min-width: 1200px;">
+                            <thead>
+                                <tr class="bg-slate-900/80 text-slate-400 text-center select-none divide-x divide-slate-800 border-b border-slate-800">
+                                    <th class="p-1.5 w-10 bg-slate-900/60"></th>
+                                    <th class="p-1.5 text-left pl-4">A: PRODUCTO / DETALLE</th>
+                                    <th class="p-1.5">B: TARJETA</th>
+                                    <th class="p-1.5">C: FECHA COMPRA</th>
+                                    <th class="p-1.5">D: VALOR TOTAL</th>
+                                    <th class="p-1.5">E: CUOTA</th>
+                                    <th class="p-1.5">F: CUOTA ACTUAL</th>
+                                    <th class="p-1.5">G: FECHA CORTE</th>
+                                    <th class="p-1.5">H: FECHA LIMITE PAGO</th>
+                                    <th class="p-1.5">I: NÓMINAS PARA AHORRO</th>
+                                    <th class="p-1.5 text-emerald-400 bg-emerald-950/20">J: AHORRO POR NÓMINA</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sheet-rows-container" class="divide-y divide-slate-800">
+                                <!-- Se llena dinámicamente con filas de excel simuladas -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Sheets Footer Summary -->
+                    <div class="bg-slate-900 border-t border-slate-800 px-4 py-2.5 text-xs text-slate-400 flex items-center justify-between shrink-0">
+                        <div class="flex items-center gap-3">
+                            <span class="bg-slate-800 px-2.5 py-1 rounded text-slate-300 font-bold border border-slate-700">Hoja1</span>
+                            <span class="text-[10px] text-slate-500">Fórmulas activas: =SUMA(), =DIVIDIR()</span>
+                        </div>
+                        <div class="flex gap-4 font-mono">
+                            <div>Filas registradas: <span id="sheet-row-count" class="font-bold text-slate-300">0</span></div>
+                            <div>Ahorro total estimado: <span id="sheet-sum-savings" class="font-bold text-emerald-400">$0</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL: AGREGAR TARJETA -->
+    <div id="modal-card" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-gradient-to-r from-emerald-500/10 to-teal-500/10">
+                <h3 class="font-bold text-slate-200 flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-emerald-500"></i>
+                    Agregar Tarjeta de Crédito
+                </h3>
+                <button onclick="closeCardModal()" class="text-slate-400 hover:text-slate-200 transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="saveCard(event)" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Nombre de la Tarjeta (ej. Visa Bancolombia)</label>
+                    <input id="card-name" type="text" required placeholder="Bancolombia, Nu, Davivienda, etc." class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-2.5 text-sm text-slate-200 outline-none transition">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Día de Corte (Mensual)</label>
+                        <input id="card-cut-day" type="number" required min="1" max="31" placeholder="Ej. 15" class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-2.5 text-sm text-slate-200 outline-none transition">
+                        <span class="text-[10px] text-slate-500 mt-1 block">Día que cierra el ciclo</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Día de Pago (Mensual)</label>
+                        <input id="card-pay-day" type="number" required min="1" max="31" placeholder="Ej. 1" class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-2.5 text-sm text-slate-200 outline-none transition">
+                        <span class="text-[10px] text-slate-500 mt-1 block">Fecha límite de pago</span>
+                    </div>
+                </div>
+                <div class="pt-2 flex justify-end gap-3">
+                    <button type="button" onclick="closeCardModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition shadow-lg shadow-emerald-500/10">Guardar Tarjeta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: AGREGAR COMPRA -->
+    <div id="modal-purchase" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-gradient-to-r from-teal-500/10 to-indigo-500/10">
+                <h3 class="font-bold text-slate-200 flex items-center gap-2">
+                    <i class="fa-solid fa-cart-plus text-teal-500"></i>
+                    Registrar Compra a Cuotas
+                </h3>
+                <button onclick="closePurchaseModal()" class="text-slate-400 hover:text-slate-200 transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="savePurchase(event)" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">¿Qué compraste? (Nombre/Detalle)</label>
+                    <input id="purch-name" type="text" required placeholder="Ej. Celular, Tiquetes, Compra de Supermercado" class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-4 py-2.5 text-sm text-slate-200 outline-none transition">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Valor Total ($ COP)</label>
+                        <input id="purch-amount" type="number" required min="1" placeholder="Monto total" class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-4 py-2.5 text-sm text-slate-200 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Número de Cuotas</label>
+                        <input id="purch-installments" type="number" required min="1" max="48" placeholder="Ej. 12" class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-4 py-2.5 text-sm text-slate-200 outline-none transition">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Tarjeta Utilizada</label>
+                        <select id="purch-card" required class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3 py-2.5 text-sm text-slate-200 outline-none transition">
+                            <option value="">Selecciona tarjeta...</option>
+                            <!-- Se llena dinámicamente -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Fecha de la Compra</label>
+                        <input id="purch-date" type="date" required class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3 py-2 text-sm text-slate-200 outline-none transition">
+                    </div>
+                </div>
+                <div class="pt-2 flex justify-end gap-3">
+                    <button type="button" onclick="closePurchaseModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-semibold transition shadow-lg shadow-teal-500/10">Registrar Compra</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- BASE DE DATOS / ESTADO DE LA APP ---
+        let cards = [];
+        let purchases = [];
+        let currentView = 'dashboard';
+
+        // Intentar cargar datos de localStorage al iniciar
+        try {
+            const savedCards = localStorage.getItem('nomina_cards');
+            const savedPurchases = localStorage.getItem('nomina_purchases');
+            if (savedCards) cards = JSON.parse(savedCards);
+            if (savedPurchases) purchases = JSON.parse(savedPurchases);
+        } catch (error) {
+            console.error("Error al cargar datos guardados:", error);
+        }
+
+        // Configuración inicial de fechas
+        document.getElementById('purch-date').value = new Date().toISOString().split('T')[0];
+
+        // --- SISTEMA DE MANEJO DE VISTAS ---
+        function switchView(viewName) {
+            currentView = viewName;
+            
+            // Ocultar todas las vistas
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById('view-cards').classList.add('hidden');
+            document.getElementById('view-purchases').classList.add('hidden');
+            document.getElementById('view-sheets').classList.add('hidden');
+
+            // Quitar clase activa a todos los botones del navbar
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/50";
+            });
+
+            // Mostrar vista activa
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+
+            // Resaltar botón activo
+            const activeBtn = document.getElementById(`btn-nav-${viewName}`);
+            if (activeBtn) {
+                activeBtn.className = "nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 transition-all text-emerald-400 bg-slate-800/80 border-l-4 border-emerald-500";
+            }
+
+            renderViewData();
+        }
+
+        // --- MANEJO DE MODALES ---
+        function openCardModal() {
+            document.getElementById('modal-card').classList.remove('hidden');
+        }
+        function closeCardModal() {
+            document.getElementById('modal-card').classList.add('hidden');
+            document.getElementById('card-name').value = '';
+            document.getElementById('card-cut-day').value = '';
+            document.getElementById('card-pay-day').value = '';
+        }
+
+        function openPurchaseModal() {
+            // Llenar select de tarjetas
+            const select = document.getElementById('purch-card');
+            select.innerHTML = '<option value="">Selecciona tarjeta...</option>';
+            cards.forEach(card => {
+                select.innerHTML += `<option value="${card.id}">${card.name}</option>`;
+            });
+            document.getElementById('modal-purchase').classList.remove('hidden');
+        }
+        function closePurchaseModal() {
+            document.getElementById('modal-purchase').classList.add('hidden');
+            document.getElementById('purch-name').value = '';
+            document.getElementById('purch-amount').value = '';
+            document.getElementById('purch-installments').value = '';
+            document.getElementById('purch-card').value = '';
+        }
+
+        // --- CRUDS Y GUARDADOS DE DATOS ---
+        function saveCard(e) {
+            e.preventDefault();
+            const name = document.getElementById('card-name').value;
+            const cutDay = parseInt(document.getElementById('card-cut-day').value);
+            const payDay = parseInt(document.getElementById('card-pay-day').value);
+
+            const card = {
+                id: 'card_' + Date.now(),
+                name,
+                cutDay,
+                payDay
+            };
+
+            cards.push(card);
+            saveData();
+            closeCardModal();
+            renderViewData();
+            showToast("Tarjeta agregada exitosamente", "success");
+        }
+
+        function deleteCard(cardId) {
+            // Validar si tiene compras asociadas
+            const hasPurchases = purchases.some(p => p.cardId === cardId);
+            if (hasPurchases) {
+                showToast("No puedes eliminar esta tarjeta porque tiene compras activas asociadas.", "error");
+                return;
+            }
+            cards = cards.filter(c => c.id !== cardId);
+            saveData();
+            renderViewData();
+            showToast("Tarjeta eliminada correctamente", "info");
+        }
+
+        function savePurchase(e) {
+            e.preventDefault();
+            if (cards.length === 0) {
+                showToast("Por favor, agrega una tarjeta de crédito antes de registrar compras.", "error");
+                return;
+            }
+
+            const name = document.getElementById('purch-name').value;
+            const amount = parseFloat(document.getElementById('purch-amount').value);
+            const installments = parseInt(document.getElementById('purch-installments').value);
+            const cardId = document.getElementById('purch-card').value;
+            const dateStr = document.getElementById('purch-date').value;
+
+            const purchase = {
+                id: 'purch_' + Date.now(),
+                name,
+                amount,
+                installments,
+                cardId,
+                date: dateStr // AAAA-MM-DD
+            };
+
+            purchases.push(purchase);
+            saveData();
+            closePurchaseModal();
+            renderViewData();
+            showToast("Compra registrada y distribuida", "success");
+        }
+
+        function deletePurchase(purchaseId) {
+            purchases = purchases.filter(p => p.id !== purchaseId);
+            saveData();
+            renderViewData();
+            showToast("Compra eliminada del historial", "info");
+        }
+
+        function saveData() {
+            localStorage.setItem('nomina_cards', JSON.stringify(cards));
+            localStorage.setItem('nomina_purchases', JSON.stringify(purchases));
+        }
+
+        // --- FECHAS Y LOGICA DE FECHAS (QUINCENALES) ---
+        // Retorna un listado de los pagos de nómina disponibles entre dos fechas dadas.
+        // Las nóminas ocurren el 5 y el 20 de cada mes.
+        function getPayrollsBetween(startDate, endDate) {
+            let payrolls = [];
+            let current = new Date(startDate);
+            const end = new Date(endDate);
+
+            // Evitar bucles infinitos en caso de que las fechas sean inconsistentes
+            let limitCounter = 0;
+
+            while (current <= end && limitCounter < 1000) {
+                limitCounter++;
+                const year = current.getFullYear();
+                const month = current.getMonth(); // 0-indexed
+
+                // Generamos los dos posibles días de nómina de este mes
+                const payroll5 = new Date(year, month, 5);
+                const payroll20 = new Date(year, month, 20);
+
+                // Comprobamos si caen dentro del rango [startDate, endDate]
+                if (payroll5 >= startDate && payroll5 <= end) {
+                    // Evitar duplicados
+                    if (!payrolls.some(p => p.getTime() === payroll5.getTime())) {
+                        payrolls.push(payroll5);
+                    }
+                }
+                if (payroll20 >= startDate && payroll20 <= end) {
+                    // Evitar duplicados
+                    if (!payrolls.some(p => p.getTime() === payroll20.getTime())) {
+                        payrolls.push(payroll20);
+                    }
+                }
+
+                // Avanzamos al siguiente mes
+                current.setMonth(current.getMonth() + 1);
+                current.setDate(1); // Resetear al primero para evitar saltos raros
+            }
+
+            // Ordenar cronológicamente
+            payrolls.sort((a, b) => a - b);
+            return payrolls;
+        }
+
+        // Calcula el plan de cuotas y fechas de vencimiento de una compra
+        function getPurchaseSchedule(purchase) {
+            const card = cards.find(c => c.id === purchase.cardId);
+            if (!card) return [];
+
+            const pDate = new Date(purchase.date + "T00:00:00");
+            const schedule = [];
+            const valuePerInstallment = purchase.amount / purchase.installments;
+
+            for (let i = 1; i <= purchase.installments; i++) {
+                // Cálculo de la fecha de facturación / corte quincenal de esta cuota
+                // Cada cuota se factura consecutivamente mes a mes.
+                let billYear = pDate.getFullYear();
+                let billMonth = pDate.getMonth() + (i - 1); // Cuota 1 empieza el mes de la compra o siguiente según el día de corte
+                
+                // Si el día de compra es posterior al día de corte de este mes, la primera cuota pasa al siguiente ciclo de corte
+                if (pDate.getDate() > card.cutDay) {
+                    billMonth += 1;
+                }
+
+                // Ajustar mes y año si se pasa de diciembre
+                const cutDate = new Date(billYear, billMonth, card.cutDay);
+                
+                // La fecha límite de pago es la fecha de pago correspondiente a ese corte
+                // Si el día de pago es menor que el de corte (ej. corte 15, pago 1 del mes siguiente), sumamos 1 mes a la fecha de pago
+                let payMonth = cutDate.getMonth();
+                if (card.payDay <= card.cutDay) {
+                    payMonth += 1;
+                }
+                const payDate = new Date(cutDate.getFullYear(), payMonth, card.payDay);
+
+                // Definimos el rango de ahorro para esta cuota.
+                // Para la primera cuota: Se puede ahorrar desde la fecha de compra hasta la fecha límite de pago de esta cuota.
+                // Para las siguientes cuotas: Se puede ahorrar desde el vencimiento de la cuota anterior hasta el vencimiento de esta.
+                let savingStart;
+                if (i === 1) {
+                    savingStart = new Date(pDate);
+                } else {
+                    savingStart = new Date(schedule[i-2].payDate);
+                }
+
+                const savingEnd = new Date(payDate);
+                const activePayrolls = getPayrollsBetween(savingStart, savingEnd);
+
+                schedule.push({
+                    installmentNumber: i,
+                    cutDate: cutDate,
+                    payDate: payDate,
+                    amount: valuePerInstallment,
+                    savingStart: savingStart,
+                    savingEnd: savingEnd,
+                    payrolls: activePayrolls,
+                    savingPerPayroll: activePayrolls.length > 0 ? (valuePerInstallment / activePayrolls.length) : valuePerInstallment
+                });
+            }
+
+            return schedule;
+        }
+
+        // Agrupa todas las necesidades de ahorro de nómina de las compras activas
+        function getAggregatedPayrollPlan() {
+            const plan = {};
+
+            purchases.forEach(purch => {
+                const schedule = getPurchaseSchedule(purch);
+                schedule.forEach(inst => {
+                    inst.payrolls.forEach(pay => {
+                        const dateKey = formatDateKey(pay);
+                        if (!plan[dateKey]) {
+                            plan[dateKey] = {
+                                date: pay,
+                                totalToSave: 0,
+                                items: []
+                            };
+                        }
+                        plan[dateKey].totalToSave += inst.savingPerPayroll;
+                        plan[dateKey].items.push({
+                            purchaseName: purch.name,
+                            installmentNum: inst.installmentNumber,
+                            totalInstallments: purch.installments,
+                            savingAmount: inst.savingPerPayroll,
+                            paymentDueDate: inst.payDate
+                        });
+                    });
+                });
+            });
+
+            // Convertir a un arreglo ordenado por fecha
+            return Object.values(plan).sort((a, b) => a.date - b.date);
+        }
+
+        // --- RENDERIZADO GENERAL DE LA INTERFAZ ---
+        function renderViewData() {
+            // Actualizar Badges y Headers Rápidos
+            document.getElementById('badge-card-count').innerText = cards.length;
+            document.getElementById('badge-purchase-count').innerText = purchases.length;
+
+            const aggPlan = getAggregatedPayrollPlan();
+            
+            // Sidebar e Infos del Dashboard
+            const sidebarTotalSaving = aggPlan.reduce((acc, curr) => acc + curr.totalToSave, 0);
+            document.getElementById('sidebar-total-saving').innerText = formatCurrency(sidebarTotalSaving);
+            document.getElementById('dash-total-saving').innerText = formatCurrency(sidebarTotalSaving);
+            document.getElementById('dash-total-cards').innerText = cards.length;
+
+            // Encontrar próxima nómina del calendario real
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const futurePayrolls = aggPlan.filter(p => p.date >= today);
+
+            if (futurePayrolls.length > 0) {
+                const nextPay = futurePayrolls[0];
+                document.getElementById('sidebar-next-payroll-date').innerText = formatDateToReadable(nextPay.date);
+                document.getElementById('sidebar-next-payroll-amount').innerText = formatCurrency(nextPay.totalToSave);
+                document.getElementById('dash-active-payroll-info').innerText = `Próximo: ${formatDateToReadable(nextPay.date)} (${formatCurrency(nextPay.totalToSave)})`;
+            } else {
+                document.getElementById('sidebar-next-payroll-date').innerText = "Sin pagos agendados";
+                document.getElementById('sidebar-next-payroll-amount').innerText = "$0";
+                document.getElementById('dash-active-payroll-info').innerText = "No hay deudas activas en las próximas nóminas.";
+            }
+
+            // Renderizar según vista activa
+            if (currentView === 'dashboard') {
+                renderDashboard(aggPlan);
+            } else if (currentView === 'cards') {
+                renderCardsGrid();
+            } else if (currentView === 'purchases') {
+                renderPurchasesTable();
+            } else if (currentView === 'sheets') {
+                renderGoogleSheets();
+            }
+        }
+
+        // --- STREAMING_CHUNK: Renderizando el Dashboard ---
+        function renderDashboard(aggPlan) {
+            const listContainer = document.getElementById('payroll-distribution-list');
+            listContainer.innerHTML = '';
+
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const activePayrolls = aggPlan.filter(p => p.date >= today);
+
+            if (activePayrolls.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="p-8 text-center bg-slate-900/20 border border-slate-800/80 rounded-xl">
+                        <i class="fa-solid fa-face-smile text-slate-500 text-3xl mb-2"></i>
+                        <p class="text-slate-400 text-sm">¡Estás al día! No hay compras activas diferidas que requieran ahorro.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            activePayrolls.forEach((payroll, index) => {
+                const isFirst = index === 0;
+                let itemsHTML = '';
+
+                payroll.items.forEach(item => {
+                    itemsHTML += `
+                        <div class="flex items-center justify-between text-xs py-1 border-b border-slate-800/40 last:border-0">
+                            <span class="text-slate-400 flex items-center gap-1.5">
+                                <span class="h-1.5 w-1.5 rounded-full bg-slate-600"></span>
+                                ${item.purchaseName} <span class="text-[10px] text-slate-500">(Cuota ${item.installmentNum}/${item.totalInstallments})</span>
+                            </span>
+                            <span class="font-semibold text-slate-300">${formatCurrency(item.savingAmount)}</span>
+                        </div>
+                    `;
+                });
+
+                listContainer.innerHTML += `
+                    <div class="bg-slate-900 border ${isFirst ? 'border-emerald-500/30 bg-emerald-500/[0.02]' : 'border-slate-800'} p-4 rounded-xl space-y-3 transition-all">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="p-1.5 ${isFirst ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'} rounded-lg text-xs">
+                                    <i class="fa-solid fa-sack-dollar"></i>
+                                </div>
+                                <div>
+                                    <h5 class="text-xs font-bold text-slate-200">${formatDateToReadable(payroll.date)}</h5>
+                                    <p class="text-[9px] text-slate-400">Nómina quincenal programada</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-slate-400">Debes Guardar</p>
+                                <p class="text-sm font-extrabold ${isFirst ? 'text-emerald-400' : 'text-slate-200'}">${formatCurrency(payroll.totalToSave)}</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800/60 space-y-1">
+                            <p class="text-[9px] text-slate-500 font-bold uppercase tracking-wide">Desglose de Ahorro</p>
+                            ${itemsHTML}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- STREAMING_CHUNK: Renderizando la Sección de Tarjetas ---
+        function renderCardsGrid() {
+            const grid = document.getElementById('cards-grid');
+            grid.innerHTML = '';
+
+            if (cards.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full p-12 text-center bg-slate-900/20 border border-slate-800/80 rounded-2xl">
+                        <i class="fa-solid fa-credit-card text-slate-600 text-5xl mb-3"></i>
+                        <p class="text-slate-300 font-semibold mb-1">No tienes tarjetas agregadas</p>
+                        <p class="text-slate-500 text-xs mb-4">Comienza registrando tus tarjetas de crédito con su fecha de corte y pago.</p>
+                        <button onclick="openCardModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition">
+                            Crear mi primera tarjeta
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            cards.forEach((card, index) => {
+                // Obtener compras vinculadas
+                const cardPurchs = purchases.filter(p => p.cardId === card.id);
+                const totalDebt = cardPurchs.reduce((acc, p) => acc + p.amount, 0);
+
+                // Variar los degradados de fondo de las tarjetas para mejor estética visual
+                const gradients = [
+                    'from-slate-800 via-indigo-950 to-slate-900',
+                    'from-slate-800 via-emerald-950 to-slate-900',
+                    'from-slate-800 via-purple-950 to-slate-900'
+                ];
+                const gradient = gradients[index % gradients.length];
+
+                grid.innerHTML += `
+                    <div class="bg-gradient-to-br ${gradient} border border-slate-800 rounded-2xl p-5 flex flex-col justify-between shadow-xl relative overflow-hidden group min-h-[190px]">
+                        <!-- Icono de Red de Tarjeta de fondo -->
+                        <div class="absolute -right-4 -bottom-4 text-slate-100/5 text-9xl font-black italic pointer-events-none select-none">
+                            CARD
+                        </div>
+
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-slate-900/80 border border-slate-700/50 rounded-xl text-slate-300 text-lg">
+                                    <i class="fa-solid fa-credit-card"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-200 text-sm">${card.name}</h4>
+                                    <p class="text-[10px] text-slate-400">ID: ${card.id.split('_')[1]}</p>
+                                </div>
+                            </div>
+                            <button onclick="deleteCard('${card.id}')" class="text-slate-500 hover:text-red-400 transition p-1.5 hover:bg-red-500/10 rounded-lg text-xs">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+
+                        <!-- Fechas Claves -->
+                        <div class="grid grid-cols-2 gap-2 mt-4 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/60 text-xs">
+                            <div>
+                                <span class="text-slate-500 text-[9px] font-bold uppercase tracking-wider block">Corte</span>
+                                <span class="font-bold text-slate-300">Día ${card.cutDay} / mes</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 text-[9px] font-bold uppercase tracking-wider block">Fecha Pago</span>
+                                <span class="font-bold text-slate-300">Día ${card.payDay} / mes</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between mt-4 pt-3 border-t border-slate-800/50 text-xs">
+                            <span class="text-slate-400">${cardPurchs.length} compras activas</span>
+                            <span class="font-bold text-emerald-400">Total: ${formatCurrency(totalDebt)}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- STREAMING_CHUNK: Renderizando el Historial de Compras ---
+        function renderPurchasesTable() {
+            const tbody = document.getElementById('purchases-table-body');
+            const emptyState = document.getElementById('purchases-empty-state');
+            tbody.innerHTML = '';
+
+            if (purchases.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            purchases.forEach(purch => {
+                const card = cards.find(c => c.id === purch.cardId);
+                const cardName = card ? card.name : 'Tarjeta No Identificada';
+                const valuePerInstallment = purch.amount / purch.installments;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-900/40 transition-all border-b border-slate-800/40">
+                        <td class="p-4 font-semibold text-slate-200">
+                            <div class="flex items-center gap-2.5">
+                                <div class="h-8 w-8 bg-teal-500/10 text-teal-400 rounded-lg flex items-center justify-center text-xs">
+                                    <i class="fa-solid fa-bag-shopping"></i>
+                                </div>
+                                <span>${purch.name}</span>
+                            </div>
+                        </td>
+                        <td class="p-4 text-slate-400">
+                            <span class="px-2.5 py-1 bg-slate-800 border border-slate-700 rounded-full text-xs text-slate-300 font-medium">
+                                <i class="fa-solid fa-credit-card text-slate-400 text-[10px] mr-1"></i>
+                                ${cardName}
+                            </span>
+                        </td>
+                        <td class="p-4 text-center font-bold text-slate-300">${purch.installments} cuotas</td>
+                        <td class="p-4 font-extrabold text-slate-200">${formatCurrency(purch.amount)}</td>
+                        <td class="p-4 font-semibold text-emerald-400">${formatCurrency(valuePerInstallment)} <span class="text-[10px] text-slate-500">/mes</span></td>
+                        <td class="p-4 text-slate-400 font-mono text-xs">${purch.date}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="deletePurchase('${purch.id}')" class="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition text-xs">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- STREAMING_CHUNK: Renderizando la Hoja de Google Sheets Simulada ---
+        function renderGoogleSheets() {
+            const container = document.getElementById('sheet-rows-container');
+            container.innerHTML = '';
+
+            let rowCount = 0;
+            let totalSavingsInSheet = 0;
+
+            // Recorremos cada compra y sus correspondientes cuotas para alimentar la planilla
+            purchases.forEach((purch, pIdx) => {
+                const card = cards.find(c => c.id === purch.cardId);
+                const cardName = card ? card.name : 'Tarjeta';
+                const schedule = getPurchaseSchedule(purch);
+
+                schedule.forEach((inst, iIdx) => {
+                    rowCount++;
+                    totalSavingsInSheet += inst.savingPerPayroll;
+                    
+                    // Nombres de nóminas donde se guardará para esta cuota
+                    const payrollsString = inst.payrolls.map(p => formatDateToShort(p)).join(', ');
+
+                    container.innerHTML += `
+                        <tr class="hover:bg-slate-900/40 bg-slate-950 divide-x divide-slate-800 text-slate-300">
+                            <td class="p-1.5 text-center text-[10px] text-slate-600 font-sans font-semibold bg-slate-900/30 select-none">${rowCount}</td>
+                            <td class="p-1.5 pl-4 text-slate-200 font-semibold">${purch.name}</td>
+                            <td class="p-1.5 text-slate-400">${cardName}</td>
+                            <td class="p-1.5 text-slate-500 text-center font-mono text-[11px]">${purch.date}</td>
+                            <td class="p-1.5 text-slate-300 text-right">${formatCurrency(purch.amount)}</td>
+                            <td class="p-1.5 text-center text-slate-400">${purch.installments} cuotas</td>
+                            <td class="p-1.5 text-center font-semibold text-emerald-400">${inst.installmentNumber} / ${purch.installments}</td>
+                            <td class="p-1.5 text-center text-slate-500 font-mono text-[11px]">${formatDateToReadableShort(inst.cutDate)}</td>
+                            <td class="p-1.5 text-center text-red-400 font-semibold font-mono text-[11px]">${formatDateToReadableShort(inst.payDate)}</td>
+                            <td class="p-1.5 text-slate-400 font-sans leading-relaxed text-[11px] pl-3">${payrollsString || 'Sin nóminas previas (¡Ahorrar ya!)'}</td>
+                            <td class="p-1.5 text-right font-extrabold text-emerald-400 bg-emerald-950/10 pr-4">${formatCurrency(inst.savingPerPayroll)}</td>
+                        </tr>
+                    `;
+                });
+            });
+
+            // En caso de estar vacío, rellenar con filas en blanco como Excel real
+            if (rowCount === 0) {
+                for (let i = 1; i <= 10; i++) {
+                    container.innerHTML += `
+                        <tr class="divide-x divide-slate-800 bg-slate-950 text-slate-600 select-none">
+                            <td class="p-1.5 text-center text-[10px] bg-slate-900/30 font-semibold">${i}</td>
+                            <td class="p-1.5 pl-4">-- Fila Vacía --</td>
+                            <td class="p-1.5"></td>
+                            <td class="p-1.5"></td>
+                            <td class="p-1.5"></td>
+                            <td class="p-1.5"></td>
+                            <td class="p-1.5"></td>
+                            <td class="p-1.5"></td>
+                            <td class="p-1.5"></td>
+                            <td class="p-1.5"></td>
+                            <td class="p-1.5 bg-emerald-950/5"></td>
+                        </tr>
+                    `;
+                }
+            }
+
+            document.getElementById('sheet-row-count').innerText = rowCount;
+            document.getElementById('sheet-sum-savings').innerText = formatCurrency(totalSavingsInSheet);
+        }
+
+        // --- STREAMING_CHUNK: Herramientas de Exportación y Helpers ---
+        // Exportación de datos de ahorro acumulados a formato CSV (Compatible con Excel/Google Sheets)
+        function exportToCSV() {
+            if (purchases.length === 0) {
+                showToast("No tienes compras registradas para exportar.", "error");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            // Encabezados
+            csvContent += "Producto/Detalle,Tarjeta,Fecha de Compra,Valor Total,Cuotas Totales,Cuota Actual,Fecha de Corte,Fecha Limite de Pago,Nominas Asignadas,Ahorro Quincenal\n";
+
+            purchases.forEach(purch => {
+                const card = cards.find(c => c.id === purch.cardId);
+                const cardName = card ? card.name : 'Tarjeta';
+                const schedule = getPurchaseSchedule(purch);
+
+                schedule.forEach(inst => {
+                    const payrollsString = inst.payrolls.map(p => formatDateToShort(p)).join(' | ');
+                    
+                    const row = [
+                        `"${purch.name}"`,
+                        `"${cardName}"`,
+                        `"${purch.date}"`,
+                        purch.amount,
+                        purch.installments,
+                        inst.installmentNumber,
+                        `"${formatDateToReadableShort(inst.cutDate)}"`,
+                        `"${formatDateToReadableShort(inst.payDate)}"`,
+                        `"${payrollsString}"`,
+                        inst.savingPerPayroll.toFixed(2)
+                    ].join(",");
+                    csvContent += row + "\n";
+                });
+            });
+
+            // Descarga del archivo
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Ahorro_Nominas_Tarjetas_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("Archivo CSV descargado con éxito", "success");
+        }
+
+        // --- INTEGRADOR CON LA API DE GEMINI (ASISTENTE CONVERSACIONAL) ---
+        async function askGemini() {
+            const inputEl = document.getElementById('ai-chat-input');
+            const query = inputEl.value.trim();
+            if (!query) return;
+
+            // Mostrar el mensaje del usuario inmediatamente
+            appendChatMessage("user", query);
+            inputEl.value = '';
+
+            // Mostrar estado de carga del bot
+            const loadingId = appendChatMessage("bot", "<span class='flex items-center gap-2'><i class='fa-solid fa-spinner animate-spin'></i> Pensando respuesta...</span>");
+
+            // Construir el prompt enviándole el contexto de sus tarjetas y compras actuales
+            const contextPrompt = `
+                Actúas como un experto planificador financiero enfocado en deudas de tarjetas de crédito y nóminas quincenales (5 y 20 de cada mes).
+                El usuario tiene la siguiente información de tarjetas de crédito:
+                ${JSON.stringify(cards)}
+                
+                Y tiene el siguiente historial de compras registradas en la aplicación:
+                ${JSON.stringify(purchases)}
+                
+                Pregunta del usuario: "${query}"
+                
+                Por favor, genera una respuesta muy concisa (de máximo 3 párrafos), clara, práctica y profesional en español. Explícale cómo puede optimizar sus compras, evitar recargos y la mejor estrategia con base en el pago de nómina del 5 y 20 de cada mes.
+            `;
+
+            try {
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=`;
+                const payload = {
+                    contents: [{ parts: [{ text: contextPrompt }] }]
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    const aiResponse = candidate.content.parts[0].text;
+                    updateChatMessage(loadingId, aiResponse);
+                } else {
+                    updateChatMessage(loadingId, "Lo lamento, en este momento no he podido estructurar un análisis detallado. Por favor, verifica tus compras cargadas.");
+                }
+
+            } catch (error) {
+                console.error("Error al consultar Gemini:", error);
+                updateChatMessage(loadingId, "Disculpa, ha ocurrido un inconveniente al conectarme con el servicio de análisis financiero. ¿Te puedo ayudar calculando tus montos de nómina?");
+            }
+        }
+
+        function appendChatMessage(sender, text) {
+            const container = document.getElementById('ai-chat-messages');
+            const messageId = 'chat_' + Date.now();
+            
+            const isBot = sender === "bot";
+            const senderName = isBot ? "Asistente" : "Tú";
+            const senderClass = isBot ? "text-indigo-400" : "text-emerald-400";
+            const bgClass = isBot ? "bg-slate-800/40" : "bg-slate-900";
+
+            container.innerHTML += `
+                <div id="${messageId}" class="${bgClass} rounded-lg p-3 text-slate-300">
+                    <span class="font-bold ${senderClass} block mb-1">
+                        <i class="fa-solid ${isBot ? 'fa-robot' : 'fa-user'} mr-1"></i> ${senderName}
+                    </span>
+                    <span class="chat-text">${text}</span>
+                </div>
+            `;
+            container.scrollTop = container.scrollHeight;
+            return messageId;
+        }
+
+        function updateChatMessage(id, newText) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.querySelector('.chat-text').innerHTML = newText.replace(/\n/g, '<br>');
+            }
+        }
+
+        // --- SISTEMA DE TOASTS PARA NOTIFICACIONES ---
+        function showToast(message, type = "info") {
+            // Eliminar toasts existentes para evitar saturación
+            const existing = document.getElementById('toast-container');
+            if (existing) existing.remove();
+
+            const colors = {
+                success: 'border-emerald-500 bg-slate-900 text-slate-100',
+                error: 'border-red-500 bg-slate-900 text-slate-100',
+                info: 'border-blue-500 bg-slate-900 text-slate-100'
+            };
+
+            const icons = {
+                success: '<i class="fa-solid fa-circle-check text-emerald-500"></i>',
+                error: '<i class="fa-solid fa-circle-exclamation text-red-500"></i>',
+                info: '<i class="fa-solid fa-circle-info text-blue-500"></i>'
+            };
+
+            const toast = document.createElement('div');
+            toast.id = 'toast-container';
+            toast.className = `fixed bottom-5 right-5 z-50 flex items-center gap-3 px-4 py-3 border rounded-xl shadow-2xl transition-all duration-300 transform translate-y-0 ${colors[type]}`;
+            toast.innerHTML = `
+                ${icons[type]}
+                <span class="text-xs font-semibold">${message}</span>
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // --- FUNCIONES UTILITARIAS ---
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('es-CO', {
+                style: 'currency',
+                currency: 'COP',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function formatDateKey(date) {
+            return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+        }
+
+        function formatDateToReadable(date) {
+            const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            return `${date.getDate()} de ${months[date.getMonth()]} de ${date.getFullYear()}`;
+        }
+
+        function formatDateToReadableShort(date) {
+            const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            return `${date.getDate()}-${months[date.getMonth()]}-${date.getFullYear().toString().substr(-2)}`;
+        }
+
+        function formatDateToShort(date) {
+            const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            return `${date.getDate()} ${months[date.getMonth()]}`;
+        }
+
+        // Ejecutar carga inicial en el arranque
+        window.onload = function () {
+            renderViewData();
+        }
+    </script>
+</body>
+</html>
