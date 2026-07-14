@@ -29,40 +29,45 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #475569;
         }
+        /* Transición suave para barra de navegación móvil */
+        .mobile-nav-active {
+            color: #10b981 !important;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
-<body class="h-full flex flex-col overflow-hidden">
+<body class="h-full flex flex-col overflow-hidden bg-slate-950">
 
     <!-- Header superior de la App -->
-    <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between shrink-0">
-        <div class="flex items-center space-x-3">
-            <div class="p-2.5 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg shadow-emerald-500/20 text-white">
-                <i class="fa-solid fa-credit-card text-xl"></i>
+    <header class="bg-slate-900 border-b border-slate-800 px-4 md:px-6 py-3.5 flex items-center justify-between shrink-0">
+        <div class="flex items-center space-x-2.5">
+            <div class="p-2 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg shadow-emerald-500/20 text-white shrink-0">
+                <i class="fa-solid fa-credit-card text-lg md:text-xl"></i>
             </div>
             <div>
-                <h1 class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
-                    NominaCard Planner
+                <h1 class="font-extrabold text-base md:text-lg tracking-tight bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+                    NominaCard
                 </h1>
-                <p class="text-xs text-slate-400">Automatiza tus ahorros quincenales (5 y 20) para tus compras</p>
+                <p class="text-[10px] md:text-xs text-slate-400">Ahorros quincenales quincenas 5 y 20</p>
             </div>
         </div>
         
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2">
             <!-- Selector de nóminas activas del mes -->
-            <span class="text-xs font-semibold px-2.5 py-1 bg-slate-800 rounded-full text-slate-300 border border-slate-700 flex items-center gap-1.5">
-                <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                Nóminas: 5 y 20 de cada mes
+            <span class="text-[10px] md:text-xs font-semibold px-2 py-1 bg-slate-800 rounded-full text-slate-300 border border-slate-700 flex items-center gap-1">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="hidden sm:inline">Nóminas:</span> 5 y 20
             </span>
-            <button onclick="exportToCSV()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 text-slate-200 text-sm font-medium rounded-lg transition-all duration-150 flex items-center gap-2">
+            <button onclick="exportToCSV()" class="p-2 md:px-3 md:py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 text-slate-200 text-xs md:text-sm font-medium rounded-lg transition-all duration-150 flex items-center gap-2">
                 <i class="fa-solid fa-file-excel text-emerald-500"></i>
-                Exportar CSV
+                <span class="hidden md:inline">Exportar CSV</span>
             </button>
         </div>
     </header>
 
-    <div class="flex-1 flex overflow-hidden">
-        <!-- Sidebar lateral de navegación -->
-        <aside class="w-64 bg-slate-900/50 border-r border-slate-800 flex flex-col p-4 shrink-0 justify-between">
+    <div class="flex-1 flex overflow-hidden relative">
+        <!-- Sidebar lateral de navegación (Escondido en Móvil) -->
+        <aside class="hidden md:flex w-64 bg-slate-900/50 border-r border-slate-800 flex-col p-4 shrink-0 justify-between">
             <div class="space-y-6">
                 <!-- Secciones -->
                 <div>
@@ -79,7 +84,7 @@
                         </button>
                         <button onclick="switchView('purchases')" id="btn-nav-purchases" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
                             <i class="fa-solid fa-basket-shopping w-5"></i>
-                            Compras Realizadas
+                            Compras
                             <span id="badge-purchase-count" class="ml-auto text-xs px-2 py-0.5 bg-slate-800 text-slate-300 rounded-full">0</span>
                         </button>
                         <button onclick="switchView('sheets')" id="btn-nav-sheets" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
@@ -111,7 +116,7 @@
                 </div>
                 <div class="space-y-2">
                     <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80">
-                        <p class="text-[10px] text-slate-500 font-semibold uppercase">Próxima Nómina (Día 5 o 20)</p>
+                        <p class="text-[10px] text-slate-500 font-semibold uppercase">Próxima Nómina (5 o 20)</p>
                         <p class="text-xs font-bold text-slate-300 mt-1" id="sidebar-next-payroll-date">Calculando...</p>
                         <p class="text-sm font-extrabold text-emerald-400 mt-0.5" id="sidebar-next-payroll-amount">$0</p>
                     </div>
@@ -119,52 +124,78 @@
             </div>
         </aside>
 
+        <!-- Barra de Navegación Inferior (Exclusiva para Móviles) -->
+        <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 z-40 flex items-center justify-around py-2 px-1 shadow-xl">
+            <button onclick="switchView('dashboard')" id="btn-m-dashboard" class="flex flex-col items-center justify-center flex-1 py-1 text-emerald-400 transition-all duration-150">
+                <i class="fa-solid fa-chart-pie text-lg mb-1"></i>
+                <span class="text-[9px] font-medium">Dashboard</span>
+            </button>
+            <button onclick="switchView('cards')" id="btn-m-cards" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-200 transition-all duration-150">
+                <i class="fa-solid fa-wallet text-lg mb-1"></i>
+                <span class="text-[9px] font-medium">Tarjetas</span>
+            </button>
+            <!-- Botón flotante para acciones rápidas en móvil -->
+            <div class="relative -top-3 shrink-0">
+                <button onclick="showMobileActionSheet()" class="p-3.5 bg-gradient-to-tr from-emerald-500 to-teal-500 text-white rounded-full shadow-lg shadow-emerald-500/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
+                    <i class="fa-solid fa-plus text-base"></i>
+                </button>
+            </div>
+            <button onclick="switchView('purchases')" id="btn-m-purchases" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-200 transition-all duration-150">
+                <i class="fa-solid fa-basket-shopping text-lg mb-1"></i>
+                <span class="text-[9px] font-medium">Compras</span>
+            </button>
+            <button onclick="switchView('sheets')" id="btn-m-sheets" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-200 transition-all duration-150">
+                <i class="fa-solid fa-table text-lg mb-1"></i>
+                <span class="text-[9px] font-medium">Hojas</span>
+            </button>
+        </nav>
+
         <!-- Contenedor de Vistas Dinámicas -->
-        <main class="flex-1 flex flex-col bg-slate-950 overflow-y-auto relative">
+        <main class="flex-1 flex flex-col bg-slate-950 overflow-y-auto relative pb-24 md:pb-0">
 
             <!-- VISTA: DASHBOARD -->
-            <section id="view-dashboard" class="p-6 space-y-6">
+            <section id="view-dashboard" class="p-4 md:p-6 space-y-6">
                 <!-- Hero con Metas -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between shadow-xl relative overflow-hidden">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-800 p-4 md:p-5 rounded-2xl flex flex-col justify-between shadow-xl relative overflow-hidden">
                         <div class="absolute -right-4 -top-4 text-emerald-500/5 text-8xl font-bold pointer-events-none">
                             <i class="fa-solid fa-money-bill-wave"></i>
                         </div>
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Ahorro Requerido Total</span>
-                            <span class="p-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg text-sm"><i class="fa-solid fa-vault"></i></span>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-[10px] md:text-xs font-semibold text-slate-400 uppercase tracking-wider">Ahorro Requerido Total</span>
+                            <span class="p-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg text-xs md:text-sm"><i class="fa-solid fa-vault"></i></span>
                         </div>
                         <div>
-                            <h3 class="text-3xl font-black text-slate-100" id="dash-total-saving">$0</h3>
-                            <p class="text-xs text-slate-400 mt-1">Suma acumulada de todas las cuotas activas</p>
+                            <h3 class="text-2xl md:text-3xl font-black text-slate-100" id="dash-total-saving">$0</h3>
+                            <p class="text-[10px] md:text-xs text-slate-400 mt-1">Suma de todas las cuotas activas</p>
                         </div>
                     </div>
 
-                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between shadow-xl relative overflow-hidden">
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-800 p-4 md:p-5 rounded-2xl flex flex-col justify-between shadow-xl relative overflow-hidden">
                         <div class="absolute -right-4 -top-4 text-teal-500/5 text-8xl font-bold pointer-events-none">
                             <i class="fa-solid fa-wallet"></i>
                         </div>
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tarjetas Registradas</span>
-                            <span class="p-1.5 bg-teal-500/10 text-teal-400 rounded-lg text-sm"><i class="fa-solid fa-credit-card"></i></span>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-[10px] md:text-xs font-semibold text-slate-400 uppercase tracking-wider">Tarjetas Registradas</span>
+                            <span class="p-1.5 bg-teal-500/10 text-teal-400 rounded-lg text-xs md:text-sm"><i class="fa-solid fa-credit-card"></i></span>
                         </div>
                         <div>
-                            <h3 class="text-3xl font-black text-slate-100" id="dash-total-cards">0</h3>
-                            <p class="text-xs text-slate-400 mt-1">Bancos y franquicias vinculadas</p>
+                            <h3 class="text-2xl md:text-3xl font-black text-slate-100" id="dash-total-cards">0</h3>
+                            <p class="text-[10px] md:text-xs text-slate-400 mt-1">Bancos y franquicias vinculadas</p>
                         </div>
                     </div>
 
-                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between shadow-xl relative overflow-hidden">
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-800 p-4 md:p-5 rounded-2xl flex flex-col justify-between shadow-xl relative overflow-hidden sm:col-span-2 md:col-span-1">
                         <div class="absolute -right-4 -top-4 text-blue-500/5 text-8xl font-bold pointer-events-none">
                             <i class="fa-solid fa-calendar-days"></i>
                         </div>
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Esquema de Nómina</span>
-                            <span class="p-1.5 bg-blue-500/10 text-blue-400 rounded-lg text-sm"><i class="fa-solid fa-sack-dollar"></i></span>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-[10px] md:text-xs font-semibold text-slate-400 uppercase tracking-wider">Esquema de Nómina</span>
+                            <span class="p-1.5 bg-blue-500/10 text-blue-400 rounded-lg text-xs md:text-sm"><i class="fa-solid fa-sack-dollar"></i></span>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-slate-100">Quincenal (5 / 20)</h3>
-                            <p class="text-xs text-slate-400 mt-1" id="dash-active-payroll-info">Próxima fecha: Evaluando...</p>
+                            <h3 class="text-lg md:text-xl font-bold text-slate-100">Quincenal (5 / 20)</h3>
+                            <p class="text-[10px] md:text-xs text-slate-400 mt-1" id="dash-active-payroll-info">Próxima fecha: Evaluando...</p>
                         </div>
                     </div>
                 </div>
@@ -172,26 +203,26 @@
                 <!-- Planificador Quincenal de Ahorro: Gráfico/Tabla de los próximos desembolsos -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- Col Izquierda: Próximas Nóminas Detalladas -->
-                    <div class="lg:col-span-2 bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 flex flex-col space-y-4">
+                    <div class="lg:col-span-2 bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 md:p-5 flex flex-col space-y-4">
                         <div class="flex items-center justify-between">
                             <div>
-                                <h4 class="font-bold text-slate-100 flex items-center gap-2">
+                                <h4 class="font-bold text-slate-100 text-sm md:text-base flex items-center gap-2">
                                     <i class="fa-solid fa-calendar-check text-emerald-500"></i>
                                     Cronograma de Ahorros de Nómina
                                 </h4>
-                                <p class="text-xs text-slate-400">Distribución de lo que debes guardar cada quincena</p>
+                                <p class="text-[10px] md:text-xs text-slate-400">Distribución de lo que debes guardar cada quincena</p>
                             </div>
                         </div>
 
                         <!-- Lista de Nóminas Futuras -->
-                        <div class="overflow-y-auto max-h-[300px] pr-2 space-y-2.5" id="payroll-distribution-list">
+                        <div class="overflow-y-auto max-h-[340px] pr-1 space-y-3" id="payroll-distribution-list">
                             <!-- Inyectado dinámicamente -->
                         </div>
                     </div>
 
                     <!-- Col Derecha: Mini Asistente de IA (Gemini) para Consejos Financieros -->
-                    <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 flex flex-col h-[400px]">
-                        <div class="flex items-center gap-2.5 pb-3 border-b border-slate-800">
+                    <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 md:p-5 flex flex-col h-[350px] md:h-[400px]">
+                        <div class="flex items-center gap-2.5 pb-3 border-b border-slate-800 shrink-0">
                             <div class="p-1.5 bg-indigo-500/10 text-indigo-400 rounded-lg">
                                 <i class="fa-solid fa-brain"></i>
                             </div>
@@ -202,7 +233,7 @@
                         </div>
 
                         <!-- Chat messages container -->
-                        <div id="ai-chat-messages" class="flex-1 overflow-y-auto py-4 space-y-3 text-xs pr-1">
+                        <div id="ai-chat-messages" class="flex-1 overflow-y-auto py-3 space-y-3 text-[11px] md:text-xs pr-1">
                             <div class="bg-slate-800/40 rounded-lg p-3 text-slate-300">
                                 <span class="font-bold text-indigo-400 block mb-1"><i class="fa-solid fa-robot"></i> Asistente</span>
                                 ¡Hola! Analizaré tus tarjetas registradas, tus compras a cuotas y tus próximas nóminas para darte la mejor estrategia de ahorro. ¿Tienes alguna pregunta específica?
@@ -210,9 +241,9 @@
                         </div>
 
                         <!-- Chat input -->
-                        <div class="pt-3 border-t border-slate-800 flex gap-2">
+                        <div class="pt-3 border-t border-slate-800 flex gap-2 shrink-0">
                             <input id="ai-chat-input" type="text" placeholder="¿Cómo optimizar mi próxima nómina?" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-indigo-500 text-slate-200">
-                            <button onclick="askGemini()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition text-xs font-semibold">
+                            <button onclick="askGemini()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition text-xs font-semibold">
                                 <i class="fa-solid fa-paper-plane"></i>
                             </button>
                         </div>
@@ -220,71 +251,71 @@
                 </div>
 
                 <!-- Tutorial de Estrategia de Nómina -->
-                <div class="bg-slate-900/30 border border-slate-800/60 rounded-2xl p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-900/30 border border-slate-800/60 rounded-2xl p-4 md:p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="flex items-start gap-3">
                         <div class="text-emerald-500 text-lg mt-1"><i class="fa-solid fa-scissors"></i></div>
                         <div>
-                            <h5 class="text-sm font-semibold text-slate-200">1. Fecha de Corte</h5>
-                            <p class="text-xs text-slate-400 mt-1">Divide tus compras. Si compras antes del corte, pagas al mes siguiente; si es después, ganas una nómina adicional para ahorrar.</p>
+                            <h5 class="text-xs md:text-sm font-semibold text-slate-200">1. Fecha de Corte</h5>
+                            <p class="text-[10px] md:text-xs text-slate-400 mt-1">Divide tus compras. Si compras antes del corte, pagas al mes siguiente; si es después, ganas una nómina adicional para ahorrar.</p>
                         </div>
                     </div>
                     <div class="flex items-start gap-3">
                         <div class="text-teal-500 text-lg mt-1"><i class="fa-solid fa-piggy-bank"></i></div>
                         <div>
-                            <h5 class="text-sm font-semibold text-slate-200">2. Reparto de Nómina</h5>
-                            <p class="text-xs text-slate-400 mt-1">Dividimos el valor de cada cuota mensualmente entre todas las quincenas disponibles entre la compra y la fecha límite de pago.</p>
+                            <h5 class="text-xs md:text-sm font-semibold text-slate-200">2. Reparto de Nómina</h5>
+                            <p class="text-[10px] md:text-xs text-slate-400 mt-1">Dividimos el valor de cada cuota mensualmente entre todas las quincenas disponibles entre la compra y la fecha límite de pago.</p>
                         </div>
                     </div>
                     <div class="flex items-start gap-3">
                         <div class="text-blue-500 text-lg mt-1"><i class="fa-solid fa-building-columns"></i></div>
                         <div>
-                            <h5 class="text-sm font-semibold text-slate-200">3. Cero Estrés</h5>
-                            <p class="text-xs text-slate-400 mt-1">Al llegar el día de pago de la tarjeta, ya habrás retirado el porcentaje exacto de tus quincenas de los días 5 y 20.</p>
+                            <h5 class="text-xs md:text-sm font-semibold text-slate-200">3. Cero Estrés</h5>
+                            <p class="text-[10px] md:text-xs text-slate-400 mt-1">Al llegar el día de pago de la tarjeta, ya habrás retirado el porcentaje exacto de tus quincenas de los días 5 y 20.</p>
                         </div>
                     </div>
                 </div>
             </section>
 
             <!-- VISTA: MIS TARJETAS -->
-            <section id="view-cards" class="p-6 space-y-6 hidden">
+            <section id="view-cards" class="p-4 md:p-6 space-y-6 hidden">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                        <h2 class="text-lg md:text-xl font-bold text-slate-100 flex items-center gap-2">
                             <i class="fa-solid fa-wallet text-emerald-500"></i>
                             Mis Tarjetas de Crédito
                         </h2>
-                        <p class="text-xs text-slate-400">Administra tus tarjetas, días de corte y fechas límites de pago</p>
+                        <p class="text-[10px] md:text-xs text-slate-400">Administra tus tarjetas, días de corte y fechas límites de pago</p>
                     </div>
-                    <button onclick="openCardModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 shadow-lg shadow-emerald-500/10">
+                    <button onclick="openCardModal()" class="hidden md:flex px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-semibold transition items-center gap-2 shadow-lg shadow-emerald-500/10">
                         <i class="fa-solid fa-plus"></i>
                         Agregar Tarjeta
                     </button>
                 </div>
 
                 <!-- Lista de Tarjetas (Tarjetero visual) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="cards-grid">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" id="cards-grid">
                     <!-- Se llena dinámicamente -->
                 </div>
             </section>
 
             <!-- VISTA: COMPRAS REALIZADAS -->
-            <section id="view-purchases" class="p-6 space-y-6 hidden">
+            <section id="view-purchases" class="p-4 md:p-6 space-y-6 hidden">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                        <h2 class="text-lg md:text-xl font-bold text-slate-100 flex items-center gap-2">
                             <i class="fa-solid fa-basket-shopping text-teal-500"></i>
                             Historial de Compras
                         </h2>
-                        <p class="text-xs text-slate-400">Controla cada compra y la cantidad de cuotas / mensualidades elegidas</p>
+                        <p class="text-[10px] md:text-xs text-slate-400">Controla cada compra y la cantidad de cuotas / mensualidades elegidas</p>
                     </div>
-                    <button onclick="openPurchaseModal()" class="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 shadow-lg shadow-teal-500/10">
+                    <button onclick="openPurchaseModal()" class="hidden md:flex px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-sm font-semibold transition items-center gap-2 shadow-lg shadow-teal-500/10">
                         <i class="fa-solid fa-cart-plus"></i>
                         Registrar Compra
                     </button>
                 </div>
 
-                <!-- Tabla/Lista de Compras -->
-                <div class="bg-slate-900/40 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                <!-- Contenedor de Compras Desktop (Oculto en Móvil) -->
+                <div class="hidden md:block bg-slate-900/40 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
@@ -303,70 +334,72 @@
                             </tbody>
                         </table>
                     </div>
-                    <div id="purchases-empty-state" class="p-8 text-center hidden">
-                        <i class="fa-solid fa-receipt text-slate-600 text-4xl mb-3"></i>
-                        <p class="text-slate-400 text-sm">No has registrado compras todavía. ¡Comienza agregando una!</p>
-                    </div>
+                </div>
+
+                <!-- Contenedor de Compras Móvil (Oculto en Desktop) -->
+                <div id="purchases-mobile-list" class="block md:hidden space-y-3">
+                    <!-- Se llena dinámicamente en formato tarjeta táctil -->
+                </div>
+
+                <div id="purchases-empty-state" class="p-8 text-center hidden">
+                    <i class="fa-solid fa-receipt text-slate-600 text-4xl mb-3"></i>
+                    <p class="text-slate-400 text-sm">No has registrado compras todavía. ¡Comienza agregando una!</p>
                 </div>
             </section>
 
             <!-- VISTA: GOOGLE SHEETS INTERACTIVO -->
-            <section id="view-sheets" class="p-6 space-y-6 hidden flex flex-col h-full overflow-hidden">
+            <section id="view-sheets" class="p-4 md:p-6 space-y-4 hidden flex flex-col h-full overflow-hidden">
                 <div class="flex items-center justify-between shrink-0">
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 rounded text-[10px] font-bold uppercase tracking-wider">Autoguardado</span>
-                            <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                            <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 rounded text-[9px] font-bold uppercase tracking-wider">Autoguardado</span>
+                            <h2 class="text-base md:text-xl font-bold text-slate-100 flex items-center gap-1.5">
                                 <i class="fa-solid fa-file-invoice-dollar text-emerald-500"></i>
-                                Control de Ahorros de Nómina (Google Sheet)
+                                Control de Ahorros
                             </h2>
                         </div>
-                        <p class="text-xs text-slate-400">Simulación interactiva de base de datos de compras diferidas y cálculo de ahorro por quincena</p>
+                        <p class="text-[10px] md:text-xs text-slate-400">Simulación interactiva de base de datos de compras diferidas</p>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="exportToCSV()" class="px-3.5 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/40 text-xs font-semibold rounded-lg transition flex items-center gap-2">
-                            <i class="fa-solid fa-file-csv"></i> Descargar Excel/CSV
-                        </button>
-                    </div>
+                </div>
+
+                <!-- Sugerencia para visualización en móviles de la hoja de cálculo -->
+                <div class="md:hidden flex items-center gap-2 px-3 py-2.5 bg-indigo-950/40 border border-indigo-900/60 rounded-xl text-[10px] text-indigo-300">
+                    <i class="fa-solid fa-rotate text-xs animate-pulse"></i>
+                    <span><strong>Tip táctil:</strong> Gira tu celular de forma horizontal para una óptima lectura de la planilla.</span>
                 </div>
 
                 <!-- Estructura de Hoja de Cálculo Interactiva -->
                 <div class="flex-1 bg-[#0b1329] border border-slate-800 rounded-2xl flex flex-col overflow-hidden shadow-2xl">
                     <!-- Google Sheets top bar -->
-                    <div class="bg-slate-900 border-b border-slate-800 px-4 py-2.5 flex items-center gap-4 text-xs shrink-0 select-none">
-                        <div class="flex items-center gap-2 text-slate-300">
-                            <span class="bg-emerald-700 text-white font-extrabold px-1.5 py-0.5 rounded text-[10px]">田</span>
+                    <div class="bg-slate-900 border-b border-slate-800 px-3 py-2 flex items-center gap-3 text-[10px] md:text-xs shrink-0 select-none overflow-x-auto whitespace-nowrap">
+                        <div class="flex items-center gap-1.5 text-slate-300">
+                            <span class="bg-emerald-700 text-white font-extrabold px-1 py-0.5 rounded text-[8px] md:text-[10px]">田</span>
                             <span class="font-bold">Libro_Ahorro_Nomina.xlsx</span>
                         </div>
-                        <div class="h-4 w-px bg-slate-800"></div>
-                        <div class="flex gap-3 text-slate-400">
+                        <div class="h-4 w-px bg-slate-800 shrink-0"></div>
+                        <div class="flex gap-2.5 text-slate-400">
                             <span class="hover:text-slate-200 cursor-pointer">Archivo</span>
                             <span class="hover:text-slate-200 cursor-pointer">Editar</span>
-                            <span class="hover:text-slate-200 cursor-pointer">Ver</span>
-                            <span class="hover:text-slate-200 cursor-pointer">Fórmula</span>
-                        </div>
-                        <div class="ml-auto flex items-center gap-2 bg-slate-950 px-2.5 py-1 rounded-md border border-slate-800 text-[11px]">
-                            <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-                            <span class="text-slate-300 font-medium text-[10px]">Hojas de Google Sincronizadas (Local)</span>
+                            <span class="hover:text-slate-200 cursor-pointer font-bold text-emerald-400">Fórmulas: =AHORRO_NOMINA()</span>
                         </div>
                     </div>
 
                     <!-- Spreadsheet Data Grid -->
                     <div class="flex-1 overflow-auto bg-slate-950">
-                        <table class="w-full text-left text-xs font-mono border-collapse" style="min-width: 1200px;">
+                        <table class="w-full text-left text-[10px] md:text-xs font-mono border-collapse" style="min-width: 950px;">
                             <thead>
                                 <tr class="bg-slate-900/80 text-slate-400 text-center select-none divide-x divide-slate-800 border-b border-slate-800">
-                                    <th class="p-1.5 w-10 bg-slate-900/60"></th>
-                                    <th class="p-1.5 text-left pl-4">A: PRODUCTO / DETALLE</th>
-                                    <th class="p-1.5">B: TARJETA</th>
-                                    <th class="p-1.5">C: FECHA COMPRA</th>
-                                    <th class="p-1.5">D: VALOR TOTAL</th>
-                                    <th class="p-1.5">E: CUOTA</th>
-                                    <th class="p-1.5">F: CUOTA ACTUAL</th>
-                                    <th class="p-1.5">G: FECHA CORTE</th>
-                                    <th class="p-1.5">H: FECHA LIMITE PAGO</th>
-                                    <th class="p-1.5">I: NÓMINAS PARA AHORRO</th>
-                                    <th class="p-1.5 text-emerald-400 bg-emerald-950/20">J: AHORRO POR NÓMINA</th>
+                                    <th class="p-1.5 w-8 bg-slate-900/60"></th>
+                                    <th class="p-1.5 text-left pl-3 w-1/5">A: PRODUCTO / DETALLE</th>
+                                    <th class="p-1.5 w-[100px]">B: TARJETA</th>
+                                    <th class="p-1.5 w-[90px]">C: FECHA COMPRA</th>
+                                    <th class="p-1.5 w-[110px]">D: VALOR TOTAL</th>
+                                    <th class="p-1.5 w-[70px]">E: CUOTAS</th>
+                                    <th class="p-1.5 w-[80px]">F: CUOTA ACTUAL</th>
+                                    <th class="p-1.5 w-[90px]">G: CORTE</th>
+                                    <th class="p-1.5 w-[90px]">H: FECHA PAGO</th>
+                                    <th class="p-1.5">I: NÓMINAS ASIGNADAS</th>
+                                    <th class="p-1.5 text-emerald-400 bg-emerald-950/20 w-[110px]">J: AHORRO/QUINCENA</th>
                                 </tr>
                             </thead>
                             <tbody id="sheet-rows-container" class="divide-y divide-slate-800">
@@ -376,14 +409,13 @@
                     </div>
 
                     <!-- Sheets Footer Summary -->
-                    <div class="bg-slate-900 border-t border-slate-800 px-4 py-2.5 text-xs text-slate-400 flex items-center justify-between shrink-0">
-                        <div class="flex items-center gap-3">
-                            <span class="bg-slate-800 px-2.5 py-1 rounded text-slate-300 font-bold border border-slate-700">Hoja1</span>
-                            <span class="text-[10px] text-slate-500">Fórmulas activas: =SUMA(), =DIVIDIR()</span>
+                    <div class="bg-slate-900 border-t border-slate-800 px-3 py-2 text-[10px] md:text-xs text-slate-400 flex items-center justify-between shrink-0">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-slate-800 px-1.5 py-0.5 rounded text-slate-300 font-bold border border-slate-700 text-[9px]">Hoja1</span>
                         </div>
-                        <div class="flex gap-4 font-mono">
-                            <div>Filas registradas: <span id="sheet-row-count" class="font-bold text-slate-300">0</span></div>
-                            <div>Ahorro total estimado: <span id="sheet-sum-savings" class="font-bold text-emerald-400">$0</span></div>
+                        <div class="flex gap-3 font-mono">
+                            <div>Filas: <span id="sheet-row-count" class="font-bold text-slate-300">0</span></div>
+                            <div>Ahorro: <span id="sheet-sum-savings" class="font-bold text-emerald-400">$0</span></div>
                         </div>
                     </div>
                 </div>
@@ -391,82 +423,106 @@
         </main>
     </div>
 
+    <!-- HOJA DE ACCIONES PARA MÓVILES (Estilo Drawer / Bottom-sheet) -->
+    <div id="mobile-action-sheet" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end justify-center hidden" onclick="closeMobileActionSheet()">
+        <div class="bg-slate-900 border-t border-slate-800 rounded-t-2xl w-full p-6 space-y-4 animate-slide-up" onclick="event.stopPropagation()">
+            <!-- Indicador de arrastre visual -->
+            <div class="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-2"></div>
+            <h3 class="font-bold text-slate-200 text-sm text-center mb-1">¿Qué deseas registrar hoy?</h3>
+            
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="triggerCardModalFromMobile()" class="py-4 px-3 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-xl transition flex flex-col items-center justify-center gap-2">
+                    <span class="p-2.5 bg-emerald-500/10 rounded-full text-sm"><i class="fa-solid fa-credit-card"></i></span>
+                    Nueva Tarjeta
+                </button>
+                <button onclick="triggerPurchaseModalFromMobile()" class="py-4 px-3 bg-teal-600/10 hover:bg-teal-600/20 border border-teal-500/20 text-teal-400 text-xs font-semibold rounded-xl transition flex flex-col items-center justify-center gap-2">
+                    <span class="p-2.5 bg-teal-500/10 rounded-full text-sm"><i class="fa-solid fa-basket-shopping"></i></span>
+                    Registrar Compra
+                </button>
+            </div>
+            
+            <button onclick="closeMobileActionSheet()" class="w-full py-3 bg-slate-800 text-slate-300 text-xs font-bold rounded-xl transition mt-2">
+                Cerrar Menú
+            </button>
+        </div>
+    </div>
+
     <!-- MODAL: AGREGAR TARJETA -->
-    <div id="modal-card" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+    <div id="modal-card" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
             <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-gradient-to-r from-emerald-500/10 to-teal-500/10">
-                <h3 class="font-bold text-slate-200 flex items-center gap-2">
+                <h3 class="font-bold text-slate-200 flex items-center gap-2 text-sm md:text-base">
                     <i class="fa-solid fa-plus-circle text-emerald-500"></i>
                     Agregar Tarjeta de Crédito
                 </h3>
-                <button onclick="closeCardModal()" class="text-slate-400 hover:text-slate-200 transition"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeCardModal()" class="text-slate-400 hover:text-slate-200 transition p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form onsubmit="saveCard(event)" class="p-5 space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Nombre de la Tarjeta (ej. Visa Bancolombia)</label>
-                    <input id="card-name" type="text" required placeholder="Bancolombia, Nu, Davivienda, etc." class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-2.5 text-sm text-slate-200 outline-none transition">
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Nombre de la Tarjeta</label>
+                    <input id="card-name" type="text" required placeholder="Bancolombia, Nu, Davivienda, etc." class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-3 text-sm text-slate-200 outline-none transition">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Día de Corte (Mensual)</label>
-                        <input id="card-cut-day" type="number" required min="1" max="31" placeholder="Ej. 15" class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-2.5 text-sm text-slate-200 outline-none transition">
-                        <span class="text-[10px] text-slate-500 mt-1 block">Día que cierra el ciclo</span>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Día de Corte</label>
+                        <input id="card-cut-day" type="number" required min="1" max="31" placeholder="Ej. 15" class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-3 text-sm text-slate-200 outline-none transition">
+                        <span class="text-[10px] text-slate-500 mt-1 block">Día del ciclo</span>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Día de Pago (Mensual)</label>
-                        <input id="card-pay-day" type="number" required min="1" max="31" placeholder="Ej. 1" class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-2.5 text-sm text-slate-200 outline-none transition">
-                        <span class="text-[10px] text-slate-500 mt-1 block">Fecha límite de pago</span>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Día de Pago</label>
+                        <input id="card-pay-day" type="number" required min="1" max="31" placeholder="Ej. 1" class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-3 text-sm text-slate-200 outline-none transition">
+                        <span class="text-[10px] text-slate-500 mt-1 block">Vencimiento del mes</span>
                     </div>
                 </div>
                 <div class="pt-2 flex justify-end gap-3">
-                    <button type="button" onclick="closeCardModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition shadow-lg shadow-emerald-500/10">Guardar Tarjeta</button>
+                    <button type="button" onclick="closeCardModal()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition flex-1 sm:flex-none">Cancelar</button>
+                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition shadow-lg shadow-emerald-500/10 flex-1 sm:flex-none">Guardar Tarjeta</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- MODAL: AGREGAR COMPRA -->
-    <div id="modal-purchase" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+    <div id="modal-purchase" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
             <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-gradient-to-r from-teal-500/10 to-indigo-500/10">
-                <h3 class="font-bold text-slate-200 flex items-center gap-2">
+                <h3 class="font-bold text-slate-200 flex items-center gap-2 text-sm md:text-base">
                     <i class="fa-solid fa-cart-plus text-teal-500"></i>
                     Registrar Compra a Cuotas
                 </h3>
-                <button onclick="closePurchaseModal()" class="text-slate-400 hover:text-slate-200 transition"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closePurchaseModal()" class="text-slate-400 hover:text-slate-200 transition p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form onsubmit="savePurchase(event)" class="p-5 space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">¿Qué compraste? (Nombre/Detalle)</label>
-                    <input id="purch-name" type="text" required placeholder="Ej. Celular, Tiquetes, Compra de Supermercado" class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-4 py-2.5 text-sm text-slate-200 outline-none transition">
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">¿Qué compraste? (Detalle)</label>
+                    <input id="purch-name" type="text" required placeholder="Ej. Celular, Tiquetes, Ropa" class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-4 py-3 text-sm text-slate-200 outline-none transition">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1.5">Valor Total ($ COP)</label>
-                        <input id="purch-amount" type="number" required min="1" placeholder="Monto total" class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-4 py-2.5 text-sm text-slate-200 outline-none transition">
+                        <input id="purch-amount" type="number" required min="1" placeholder="Monto" class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-4 py-3 text-sm text-slate-200 outline-none transition">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1.5">Número de Cuotas</label>
-                        <input id="purch-installments" type="number" required min="1" max="48" placeholder="Ej. 12" class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-4 py-2.5 text-sm text-slate-200 outline-none transition">
+                        <input id="purch-installments" type="number" required min="1" max="48" placeholder="Ej. 12" class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-4 py-3 text-sm text-slate-200 outline-none transition">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1.5">Tarjeta Utilizada</label>
-                        <select id="purch-card" required class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3 py-2.5 text-sm text-slate-200 outline-none transition">
-                            <option value="">Selecciona tarjeta...</option>
+                        <select id="purch-card" required class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3 py-3 text-sm text-slate-200 outline-none transition">
+                            <option value="">Tarjeta...</option>
                             <!-- Se llena dinámicamente -->
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1.5">Fecha de la Compra</label>
-                        <input id="purch-date" type="date" required class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3 py-2 text-sm text-slate-200 outline-none transition">
+                        <input id="purch-date" type="date" required class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3 py-2.5 text-sm text-slate-200 outline-none transition">
                     </div>
                 </div>
                 <div class="pt-2 flex justify-end gap-3">
-                    <button type="button" onclick="closePurchaseModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-semibold transition shadow-lg shadow-teal-500/10">Registrar Compra</button>
+                    <button type="button" onclick="closePurchaseModal()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition flex-1 sm:flex-none">Cancelar</button>
+                    <button type="submit" class="px-5 py-2.5 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-semibold transition shadow-lg shadow-teal-500/10 flex-1 sm:flex-none">Registrar Compra</button>
                 </div>
             </form>
         </div>
@@ -491,7 +547,7 @@
         // Configuración inicial de fechas
         document.getElementById('purch-date').value = new Date().toISOString().split('T')[0];
 
-        // --- SISTEMA DE MANEJO DE VISTAS ---
+        // --- SISTEMA DE MANEJO DE VISTAS (MODIFICADO PARA SOPORTE DE NAVEGACION DE ESCRITORIO Y MÓVIL) ---
         function switchView(viewName) {
             currentView = viewName;
             
@@ -501,21 +557,57 @@
             document.getElementById('view-purchases').classList.add('hidden');
             document.getElementById('view-sheets').classList.add('hidden');
 
-            // Quitar clase activa a todos los botones del navbar
+            // Quitar clase activa a todos los botones del navbar de ESCRITORIO
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.className = "nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/50";
             });
 
-            // Mostrar vista activa
-            document.getElementById(`view-${viewName}`).classList.remove('hidden');
-
-            // Resaltar botón activo
+            // Resaltar botón activo escritorio
             const activeBtn = document.getElementById(`btn-nav-${viewName}`);
             if (activeBtn) {
                 activeBtn.className = "nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 transition-all text-emerald-400 bg-slate-800/80 border-l-4 border-emerald-500";
             }
 
+            // Quitar clase activa a todos los botones del navbar MÓVIL
+            const mobileButtons = ['dashboard', 'cards', 'purchases', 'sheets'];
+            mobileButtons.forEach(mView => {
+                const btnM = document.getElementById(`btn-m-${mView}`);
+                if (btnM) {
+                    btnM.classList.remove('text-emerald-400', 'mobile-nav-active');
+                    btnM.classList.add('text-slate-400');
+                }
+            });
+
+            // Activar botón móvil correspondiente
+            const activeBtnM = document.getElementById(`btn-m-${viewName}`);
+            if (activeBtnM) {
+                activeBtnM.classList.remove('text-slate-400');
+                activeBtnM.classList.add('text-emerald-400', 'mobile-nav-active');
+            }
+
+            // Mostrar vista activa
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+
             renderViewData();
+        }
+
+        // --- MANEJO DE DRAWERS / ACCIONES EN MÓVILES ---
+        function showMobileActionSheet() {
+            document.getElementById('mobile-action-sheet').classList.remove('hidden');
+        }
+
+        function closeMobileActionSheet() {
+            document.getElementById('mobile-action-sheet').classList.add('hidden');
+        }
+
+        function triggerCardModalFromMobile() {
+            closeMobileActionSheet();
+            openCardModal();
+        }
+
+        function triggerPurchaseModalFromMobile() {
+            closeMobileActionSheet();
+            openPurchaseModal();
         }
 
         // --- MANEJO DE MODALES ---
@@ -532,7 +624,7 @@
         function openPurchaseModal() {
             // Llenar select de tarjetas
             const select = document.getElementById('purch-card');
-            select.innerHTML = '<option value="">Selecciona tarjeta...</option>';
+            select.innerHTML = '<option value="">Tarjeta...</option>';
             cards.forEach(card => {
                 select.innerHTML += `<option value="${card.id}">${card.name}</option>`;
             });
@@ -793,6 +885,7 @@
                 renderCardsGrid();
             } else if (currentView === 'purchases') {
                 renderPurchasesTable();
+                renderPurchasesMobileList(); // Agregar renderizado de versión de compras de móvil
             } else if (currentView === 'sheets') {
                 renderGoogleSheets();
             }
@@ -823,18 +916,19 @@
 
                 payroll.items.forEach(item => {
                     itemsHTML += `
-                        <div class="flex items-center justify-between text-xs py-1 border-b border-slate-800/40 last:border-0">
-                            <span class="text-slate-400 flex items-center gap-1.5">
-                                <span class="h-1.5 w-1.5 rounded-full bg-slate-600"></span>
-                                ${item.purchaseName} <span class="text-[10px] text-slate-500">(Cuota ${item.installmentNum}/${item.totalInstallments})</span>
+                        <div class="flex items-center justify-between text-xs py-1.5 border-b border-slate-800/40 last:border-0">
+                            <span class="text-slate-400 flex items-center gap-1.5 truncate max-w-[70%]">
+                                <span class="h-1.5 w-1.5 rounded-full bg-slate-600 shrink-0"></span>
+                                <span class="truncate">${item.purchaseName}</span>
+                                <span class="text-[9px] text-slate-500 shrink-0">(${item.installmentNum}/${item.totalInstallments})</span>
                             </span>
-                            <span class="font-semibold text-slate-300">${formatCurrency(item.savingAmount)}</span>
+                            <span class="font-semibold text-slate-300 shrink-0">${formatCurrency(item.savingAmount)}</span>
                         </div>
                     `;
                 });
 
                 listContainer.innerHTML += `
-                    <div class="bg-slate-900 border ${isFirst ? 'border-emerald-500/30 bg-emerald-500/[0.02]' : 'border-slate-800'} p-4 rounded-xl space-y-3 transition-all">
+                    <div class="bg-slate-900 border ${isFirst ? 'border-emerald-500/30 bg-emerald-500/[0.02]' : 'border-slate-800'} p-3.5 md:p-4 rounded-xl space-y-3 transition-all">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <div class="p-1.5 ${isFirst ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'} rounded-lg text-xs">
@@ -842,12 +936,12 @@
                                 </div>
                                 <div>
                                     <h5 class="text-xs font-bold text-slate-200">${formatDateToReadable(payroll.date)}</h5>
-                                    <p class="text-[9px] text-slate-400">Nómina quincenal programada</p>
+                                    <p class="text-[9px] text-slate-400">Nómina programada</p>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="text-xs text-slate-400">Debes Guardar</p>
-                                <p class="text-sm font-extrabold ${isFirst ? 'text-emerald-400' : 'text-slate-200'}">${formatCurrency(payroll.totalToSave)}</p>
+                                <p class="text-[9px] text-slate-500 font-semibold uppercase tracking-wider">Ahorro</p>
+                                <p class="text-xs md:text-sm font-extrabold ${isFirst ? 'text-emerald-400' : 'text-slate-200'}">${formatCurrency(payroll.totalToSave)}</p>
                             </div>
                         </div>
                         <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800/60 space-y-1">
@@ -866,12 +960,12 @@
 
             if (cards.length === 0) {
                 grid.innerHTML = `
-                    <div class="col-span-full p-12 text-center bg-slate-900/20 border border-slate-800/80 rounded-2xl">
-                        <i class="fa-solid fa-credit-card text-slate-600 text-5xl mb-3"></i>
-                        <p class="text-slate-300 font-semibold mb-1">No tienes tarjetas agregadas</p>
+                    <div class="col-span-full p-10 text-center bg-slate-900/20 border border-slate-800/80 rounded-2xl">
+                        <i class="fa-solid fa-credit-card text-slate-600 text-4xl mb-3"></i>
+                        <p class="text-slate-300 font-semibold mb-1 text-sm">No tienes tarjetas agregadas</p>
                         <p class="text-slate-500 text-xs mb-4">Comienza registrando tus tarjetas de crédito con su fecha de corte y pago.</p>
-                        <button onclick="openCardModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition">
-                            Crear mi primera tarjeta
+                        <button onclick="openCardModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition mx-auto flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Crear tarjeta
                         </button>
                     </div>
                 `;
@@ -892,29 +986,29 @@
                 const gradient = gradients[index % gradients.length];
 
                 grid.innerHTML += `
-                    <div class="bg-gradient-to-br ${gradient} border border-slate-800 rounded-2xl p-5 flex flex-col justify-between shadow-xl relative overflow-hidden group min-h-[190px]">
+                    <div class="bg-gradient-to-br ${gradient} border border-slate-800 rounded-2xl p-4 md:p-5 flex flex-col justify-between shadow-xl relative overflow-hidden group min-h-[170px]">
                         <!-- Icono de Red de Tarjeta de fondo -->
-                        <div class="absolute -right-4 -bottom-4 text-slate-100/5 text-9xl font-black italic pointer-events-none select-none">
+                        <div class="absolute -right-4 -bottom-4 text-slate-100/5 text-8xl font-black italic pointer-events-none select-none">
                             CARD
                         </div>
 
                         <div class="flex items-start justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="p-2 bg-slate-900/80 border border-slate-700/50 rounded-xl text-slate-300 text-lg">
+                            <div class="flex items-center gap-2.5">
+                                <div class="p-2 bg-slate-900/80 border border-slate-700/50 rounded-xl text-slate-300 text-base">
                                     <i class="fa-solid fa-credit-card"></i>
                                 </div>
                                 <div>
-                                    <h4 class="font-bold text-slate-200 text-sm">${card.name}</h4>
-                                    <p class="text-[10px] text-slate-400">ID: ${card.id.split('_')[1]}</p>
+                                    <h4 class="font-bold text-slate-200 text-xs md:text-sm">${card.name}</h4>
+                                    <p class="text-[9px] text-slate-400">ID: ${card.id.split('_')[1]}</p>
                                 </div>
                             </div>
-                            <button onclick="deleteCard('${card.id}')" class="text-slate-500 hover:text-red-400 transition p-1.5 hover:bg-red-500/10 rounded-lg text-xs">
+                            <button onclick="deleteCard('${card.id}')" class="text-slate-500 hover:text-red-400 transition p-2 hover:bg-red-500/10 rounded-lg text-xs">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </div>
 
                         <!-- Fechas Claves -->
-                        <div class="grid grid-cols-2 gap-2 mt-4 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/60 text-xs">
+                        <div class="grid grid-cols-2 gap-2 mt-4 bg-slate-950/60 p-2 rounded-xl border border-slate-800/60 text-[10px] md:text-xs">
                             <div>
                                 <span class="text-slate-500 text-[9px] font-bold uppercase tracking-wider block">Corte</span>
                                 <span class="font-bold text-slate-300">Día ${card.cutDay} / mes</span>
@@ -925,9 +1019,9 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-between mt-4 pt-3 border-t border-slate-800/50 text-xs">
+                        <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-800/50 text-[10px] md:text-xs">
                             <span class="text-slate-400">${cardPurchs.length} compras activas</span>
-                            <span class="font-bold text-emerald-400">Total: ${formatCurrency(totalDebt)}</span>
+                            <span class="font-bold text-emerald-400">${formatCurrency(totalDebt)}</span>
                         </div>
                     </div>
                 `;
@@ -982,6 +1076,63 @@
             });
         }
 
+        // --- STREAMING_CHUNK: Implementación de la vista móvil táctil de compras... ---
+        function renderPurchasesMobileList() {
+            const listContainer = document.getElementById('purchases-mobile-list');
+            listContainer.innerHTML = '';
+
+            if (purchases.length === 0) {
+                return; // El Empty State ya se maneja en renderPurchasesTable
+            }
+
+            purchases.forEach(purch => {
+                const card = cards.find(c => c.id === purch.cardId);
+                const cardName = card ? card.name : 'Tarjeta';
+                const valuePerInstallment = purch.amount / purch.installments;
+
+                listContainer.innerHTML += `
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3.5 shadow-md">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2.5 truncate max-w-[80%]">
+                                <div class="h-8.5 w-8.5 bg-teal-500/10 text-teal-400 rounded-xl flex items-center justify-center text-sm shrink-0">
+                                    <i class="fa-solid fa-bag-shopping"></i>
+                                </div>
+                                <div class="truncate">
+                                    <h4 class="font-bold text-slate-200 text-xs truncate">${purch.name}</h4>
+                                    <span class="text-[10px] text-slate-500 font-mono">${purch.date}</span>
+                                </div>
+                            </div>
+                            <button onclick="deletePurchase('${purch.id}')" class="p-2 text-slate-500 hover:text-red-400 rounded-lg hover:bg-red-500/5 transition">
+                                <i class="fa-solid fa-trash-can text-sm"></i>
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 bg-slate-950 p-3 rounded-lg border border-slate-800 text-[10px]">
+                            <div>
+                                <span class="text-slate-500 uppercase font-semibold text-[8px] block tracking-wide">Tarjeta</span>
+                                <span class="font-bold text-slate-300 truncate block mt-0.5"><i class="fa-solid fa-credit-card text-[9px] mr-1 text-slate-500"></i>${cardName}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 uppercase font-semibold text-[8px] block tracking-wide">Plazo</span>
+                                <span class="font-bold text-slate-300 block mt-0.5">${purch.installments} cuotas</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-[11px]">
+                            <div>
+                                <span class="text-slate-500 text-[9px]">Monto Total:</span>
+                                <span class="font-extrabold text-slate-300 block">${formatCurrency(purch.amount)}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-slate-500 text-[9px]">Valor Cuota:</span>
+                                <span class="font-extrabold text-emerald-400 block">${formatCurrency(valuePerInstallment)}<span class="text-[8px] text-slate-500 font-normal"> /mes</span></span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
         // --- STREAMING_CHUNK: Renderizando la Hoja de Google Sheets Simulada ---
         function renderGoogleSheets() {
             const container = document.getElementById('sheet-rows-container');
@@ -1006,16 +1157,16 @@
                     container.innerHTML += `
                         <tr class="hover:bg-slate-900/40 bg-slate-950 divide-x divide-slate-800 text-slate-300">
                             <td class="p-1.5 text-center text-[10px] text-slate-600 font-sans font-semibold bg-slate-900/30 select-none">${rowCount}</td>
-                            <td class="p-1.5 pl-4 text-slate-200 font-semibold">${purch.name}</td>
-                            <td class="p-1.5 text-slate-400">${cardName}</td>
-                            <td class="p-1.5 text-slate-500 text-center font-mono text-[11px]">${purch.date}</td>
-                            <td class="p-1.5 text-slate-300 text-right">${formatCurrency(purch.amount)}</td>
+                            <td class="p-1.5 pl-3 text-slate-200 font-semibold truncate">${purch.name}</td>
+                            <td class="p-1.5 text-slate-400 text-center">${cardName}</td>
+                            <td class="p-1.5 text-slate-500 text-center font-mono text-[10px]">${purch.date}</td>
+                            <td class="p-1.5 text-slate-300 text-right font-mono">${formatCurrency(purch.amount)}</td>
                             <td class="p-1.5 text-center text-slate-400">${purch.installments} cuotas</td>
                             <td class="p-1.5 text-center font-semibold text-emerald-400">${inst.installmentNumber} / ${purch.installments}</td>
-                            <td class="p-1.5 text-center text-slate-500 font-mono text-[11px]">${formatDateToReadableShort(inst.cutDate)}</td>
-                            <td class="p-1.5 text-center text-red-400 font-semibold font-mono text-[11px]">${formatDateToReadableShort(inst.payDate)}</td>
-                            <td class="p-1.5 text-slate-400 font-sans leading-relaxed text-[11px] pl-3">${payrollsString || 'Sin nóminas previas (¡Ahorrar ya!)'}</td>
-                            <td class="p-1.5 text-right font-extrabold text-emerald-400 bg-emerald-950/10 pr-4">${formatCurrency(inst.savingPerPayroll)}</td>
+                            <td class="p-1.5 text-center text-slate-500 font-mono text-[10px]">${formatDateToReadableShort(inst.cutDate)}</td>
+                            <td class="p-1.5 text-center text-red-400 font-semibold font-mono text-[10px]">${formatDateToReadableShort(inst.payDate)}</td>
+                            <td class="p-1.5 text-slate-400 font-sans leading-relaxed text-[10px] pl-2.5">${payrollsString || 'Sin nóminas previas (¡Ahorrar ya!)'}</td>
+                            <td class="p-1.5 text-right font-extrabold text-emerald-400 bg-emerald-950/10 pr-3 font-mono">${formatCurrency(inst.savingPerPayroll)}</td>
                         </tr>
                     `;
                 });
@@ -1027,7 +1178,7 @@
                     container.innerHTML += `
                         <tr class="divide-x divide-slate-800 bg-slate-950 text-slate-600 select-none">
                             <td class="p-1.5 text-center text-[10px] bg-slate-900/30 font-semibold">${i}</td>
-                            <td class="p-1.5 pl-4">-- Fila Vacía --</td>
+                            <td class="p-1.5 pl-3">-- Fila Vacía --</td>
                             <td class="p-1.5"></td>
                             <td class="p-1.5"></td>
                             <td class="p-1.5"></td>
@@ -1158,8 +1309,8 @@
             const bgClass = isBot ? "bg-slate-800/40" : "bg-slate-900";
 
             container.innerHTML += `
-                <div id="${messageId}" class="${bgClass} rounded-lg p-3 text-slate-300">
-                    <span class="font-bold ${senderClass} block mb-1">
+                <div id="${messageId}" class="${bgClass} rounded-lg p-2.5 text-slate-300">
+                    <span class="font-bold ${senderClass} block mb-0.5">
                         <i class="fa-solid ${isBot ? 'fa-robot' : 'fa-user'} mr-1"></i> ${senderName}
                     </span>
                     <span class="chat-text">${text}</span>
@@ -1196,7 +1347,7 @@
 
             const toast = document.createElement('div');
             toast.id = 'toast-container';
-            toast.className = `fixed bottom-5 right-5 z-50 flex items-center gap-3 px-4 py-3 border rounded-xl shadow-2xl transition-all duration-300 transform translate-y-0 ${colors[type]}`;
+            toast.className = `fixed bottom-20 md:bottom-5 right-4 left-4 md:left-auto z-50 flex items-center gap-3 px-4 py-3 border rounded-xl shadow-2xl transition-all duration-300 transform translate-y-0 ${colors[type]}`;
             toast.innerHTML = `
                 ${icons[type]}
                 <span class="text-xs font-semibold">${message}</span>
@@ -1228,6 +1379,7 @@
             return `${date.getDate()} de ${months[date.getMonth()]} de ${date.getFullYear()}`;
         }
 
+        // Formato simplificado sin año para móviles
         function formatDateToReadableShort(date) {
             const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
             return `${date.getDate()}-${months[date.getMonth()]}-${date.getFullYear().toString().substr(-2)}`;
